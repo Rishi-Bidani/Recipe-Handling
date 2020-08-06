@@ -1,4 +1,6 @@
+import tkinter as tk
 from tkinter import *
+from tkinter import ttk
 import pickle
 import os
 from os import path
@@ -17,28 +19,30 @@ qty = []
 
 recipeNames = []
 ingredients = {}
-procedure = {}
-
 fullRecipe = {'ingredients': "", 'procedure': ""}
 
 current_recipe_name = ""
+
+
 # --------------------------------------
 
-if path.exists('RecipeNames.pickle'):
-    with open("RecipeNames.pickle", "rb") as r:
-        recipeNames = pickle.load(r)
-        print(recipeNames)
-
-if not path.exists('RecipeNames.pickle'):
-    with open("RecipeNames.pickle", "wb") as r:
-        recipeNames = []
-        pickle.dump(recipeNames, r)
-
+# if path.exists('RecipeNames.pickle'):
+#     with open("RecipeNames.pickle", "rb") as r:
+#         recipeNames = pickle.load(r)
+#         print(recipeNames)
+#
+# if not path.exists('RecipeNames.pickle'):
+#     with open("RecipeNames.pickle", "wb") as r:
+#         recipeNames = []
+#         pickle.dump(recipeNames, r)
+#
 
 # ----------------------------------------
 
 
 def mainpage():
+    forget()
+    restart()
     button_search.place(x="150", y="350")
     button_input.place(x="400", y="350")
 
@@ -94,8 +98,7 @@ def enter_all():
         else:
             counter += 1
     else:
-        # gui.destroy()
-        exit()
+        gui.destroy()
     # -----------------
     # -----------------------------------------
 
@@ -106,11 +109,11 @@ def enter_all():
 
     # ------------ place the entries
     for i in range(num_ing):
+        en = Entry(gui)
+        en2 = Entry(gui)
         dist = (100 + (40 * i))
-        print(dist)
         en.place(x="50", y=f"{dist}")
         en2.place(x="500", y=f"{dist}")
-
         entries_ingred.append(en)
         entries_quantity.append(en2)
     # ========================================
@@ -138,12 +141,12 @@ def enter_ingredients():
 def procedure():
     # --------------- remove previous layout ---------------
     forget()
-    title_enter.place_forget()
-    ingredient_label.place_forget()
-    quantity_label.place_forget()
-    submit_ingredients.place_forget()
+    for entries in entries_ingred:
+        entries.place_forget()
+    for entries2 in entries_quantity:
+        entries2.place_forget()
     # -------------------------------------------------------
-    textfield.place(x="20", y = "100")
+    textfield.place(x="20", y="100")
     procedure_label.place(x="220", y="20")
     button_save.place(x="250", y="600")
 
@@ -153,7 +156,6 @@ def listOfTuples(l1, l2):
 
 
 def temp_save():
-    global check
     temp_procedure = []
     proc = textfield.get("1.0", "end-1c")
     temp_procedure.append(proc)
@@ -187,22 +189,84 @@ def forget():
     quantity_label.place_forget()
     ingredient_label.place_forget()
     submit_ingredients.place_forget()
-    for entries in entries_ingred:
-        entries.place_forget()
-    for entries2 in entries_quantity:
-        entries2.place_forget()
+    textfield.place_forget()
+    procedure_label.place_forget()
+    browse_all_files_button.place_forget()
+    display_button.place_forget()
+    optmenu.place_forget()
+
+    # recipe_name_input.delete(1.0, tk.END)
+    # num_ingredients_input.delete(1.0, tk.END)
+    textfield.delete(1.0, tk.END)
+
+
+def restart():
+    global entries_ingred
+    global entries_quantity
+    global ing
+    global qty
+    global recipeNames
+    global fullRecipe
+    global current_recipe_name
+
+    entries_ingred = []
+    entries_quantity = []
+    ing = []
+    qty = []
+
+    recipeNames = []
+
+    fullRecipe = {'ingredients': "", 'procedure': ""}
+
+    current_recipe_name = ""
+    # -----------------------------------------------
+    if path.exists('RecipeNames.pickle'):
+        with open("RecipeNames.pickle", "rb") as r:
+            recipeNames = pickle.load(r)
+            print(recipeNames)
+
+    if not path.exists('RecipeNames.pickle'):
+        with open("RecipeNames.pickle", "wb") as r:
+            recipeNames = []
+            pickle.dump(recipeNames, r)
+    # --------------------------------------------------
+
+
+def search_menu():
+    forget()
+    browse_all_files_button.place(x=300, y=300)
+
+
+def choose_file():
+    forget()
+    optmenu.place(x=300, y=300)
+    display_button.place(x=300, y=500)
+
+
+def display():
+    forget()
+    print("reached")
+    fullDict = ""
+    recipename = optmenu.get()
+    recipetitle = Label(gui, text=f'{recipename}')
+    recipetitle.config(font=("Courier", 18))
+    recipetitle.place(x=320, y=20)
+    with open(f'{recipename}', "rb") as thisfile:
+        fullDict = pickle.load(thisfile)
+    fullDictIngred = fullDict['ingredients']
+    fullDictProc = fullDict['procedure']
+    print(fullDictProc)
+    print(fullDictIngred)
 
 
 # -------- mainpage ----------------
-
-button_search = Button(gui, text="Search", padx="50", pady="25", bg="lightgrey")
+button_search = Button(gui, text="Search", padx="50", pady="25", bg="lightgrey", command=search_menu)
 button_input = Button(gui, text="Input", padx="50", pady="25", bg="lightgrey", command=enter)
 button_search.config(font=("Courier", 10))
 button_input.config(font=("Courier", 10))
-
 # --------------end mainpage--------------
-# ---------------- enter ---------------
 
+# ---------------- enter ---------------
 title_enter = Label(gui, text="Enter Recipes")
 title_enter.config(font=("Courier", 44))
 
@@ -215,17 +279,14 @@ num_ingredients.config(font=("Courier", 18))
 num_ingredients_input = Entry(gui)
 
 submit = Button(gui, text="Next", padx="50", pady="20", bg="lightgrey", command=enter_all)
-
 # ----------------- end enter -----------------
+
 # ---------------- enter_all ------------------------
-en = Entry(gui)
-en2 = Entry(gui)
 ingredient_label = Label(gui, text="Ingredients")
 quantity_label = Label(gui, text="Quantity")
 ingredient_label.config(font=("Courier", 24))
 quantity_label.config(font=("Courier", 24))
 submit_ingredients = Button(gui, text="Next", padx="50", pady="20", bg="lightgrey", command=enter_ingredients)
-
 # ------------------end enter_all -------------------
 
 # ----------------- procedure -------------
@@ -236,6 +297,19 @@ procedure_label.config(font=("Courier", 40))
 # -----------------------------------------
 
 
-mainpage()
+# =========================================================================
 
+
+# ----------------------- search -----------------------------------------
+browse_all_files_button = Button(gui, text="Choose File", padx="50", pady="20", bg="lightgrey", command=choose_file)
+display_button = Button(gui, text="Show Recipe", padx="50", pady="20", bg="lightgrey", command=display)
+folder = os.getcwd()
+filelist = [fname for fname in os.listdir(folder) if fname.endswith('.pickle')]
+optmenu = ttk.Combobox(gui, values=filelist, state='readonly')
+
+
+
+
+mainpage()
 gui.mainloop()
+
