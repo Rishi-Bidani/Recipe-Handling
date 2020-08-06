@@ -244,19 +244,49 @@ def choose_file():
 
 
 def display():
-    forget()
-    print("reached")
-    fullDict = ""
+    root = Tk()
+    root.geometry("1000x700")
     recipename = optmenu.get()
-    recipetitle = Label(gui, text=f'{recipename}')
+    recipetitle = Label(root, text=f'{recipename}')
     recipetitle.config(font=("Courier", 18))
-    recipetitle.place(x=320, y=20)
+    recipetitle.place(x=450, y=17)
     with open(f'{recipename}', "rb") as thisfile:
         fullDict = pickle.load(thisfile)
+
+    # ------------- dict => list ------------------
     fullDictIngred = fullDict['ingredients']
     fullDictProc = fullDict['procedure']
-    print(fullDictProc)
-    print(fullDictIngred)
+    # ---------------------------------------------
+
+    labelIngredients = Label(root, text="Ingredients: ")
+    labelIngredients.config(font=("Courier", 20))
+    labelIngredients.place(x=20, y=50)
+
+    text = (', '.join(f"({', '.join(str(x) for x in item)})" for item in fullDictIngred))
+
+    text_label = Label(root, text=text, wraplength=700)
+    text_label.config(font=("Courier", 12))
+    text_label.place(x="220", y="60")
+
+    # ------------------ procedure label ------------------
+    labelProcedure = Label(root, text="Procedure: ")
+    labelProcedure.config(font=("Courier", 20))
+    labelProcedure.place(x=20, y=200)
+    # -----------------------------------------------------
+    # -------------- procedure text -----------------------
+    proc_text_label = ""
+    for i in fullDictProc:
+        proc_text_label_temp = Label(root, text=i, wraplength=900)
+        proc_text_label = proc_text_label_temp
+    proc_text_label.config(font=("Courier", 12))
+    proc_text_label.place(x=70, y=250)
+
+    # -----------------------------------------------------
+
+    # print(text)
+    # print(fullDictProc)
+    # print(fullDictIngred)
+    # print(', '.join(f"({', '.join(str(x) for x in item)})" for item in fullDictIngred))
 
 
 # -------- mainpage ----------------
@@ -308,8 +338,5 @@ filelist = [fname for fname in os.listdir(folder) if fname.endswith('.pickle')]
 optmenu = ttk.Combobox(gui, values=filelist, state='readonly')
 
 
-
-
 mainpage()
 gui.mainloop()
-
