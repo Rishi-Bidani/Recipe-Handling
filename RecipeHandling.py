@@ -227,15 +227,22 @@ class Search:
         classinput = Input(gui)
 
         folder = os.getcwd()
-        
+
         filelist = [fname for fname in os.listdir(folder) if fname.endswith('.pickle')]
-        
-        optionsmenu = ttk.Combobox(gui, values=filelist, state='readonly')
-        optionsmenu.place(x=300, y=300)
+
+        lst = [os.path.splitext(x)[0] for x in filelist]
+        lst.remove("RecipeNames")
+
+        select_file_label = LabelWidget(gui, "Select File From Below", "Courier", 30)
+        select_file_label.Call().place(x="80", y="30")
+
+        optionsmenu = ttk.Combobox(gui, values=lst, state='readonly', width=40)
+        optionsmenu.place(x=230, y=300)
 
         display_button = Button(gui, text="Show Recipe", padx="50", pady="20", bg="lightgrey",
                                 command=partial(self.CheckPage, 3, optionsmenu))
-        display_button.place(x=300, y=500)
+        display_button.config(font=("Courier", 15))
+        display_button.place(x=230, y=420)
 
         back_button = Button(gui, text="Back", padx="45", pady="15", bg="lightgrey",
                              command=partial(classinput.CheckPage, 1))
@@ -248,7 +255,7 @@ class Search:
         recipename = optionsmenu.get()
         recipetitle = LabelWidget(root, f'{recipename}', "Courier", 18)
         recipetitle.Call().place(x=450, y=17)
-
+        recipename += ".pickle"
         with open(f'{recipename}', "rb") as thisfile:
             fullDict = pickle.load(thisfile)
 
@@ -294,6 +301,9 @@ def MainScreen():  # Page 1
             Input.recipeNames = []
             pickle.dump(Input.recipeNames, r)
 
+    maintitle = LabelWidget(gui, "Recipe-Handling", "Courier", 44)
+    maintitle.Call().place(x="100", y="20")
+
     button_search = Button(gui, text="Search", padx="50", pady="25", bg="lightgrey",
                            command=partial(searchscreen.CheckPage, 1))
 
@@ -308,5 +318,4 @@ def MainScreen():  # Page 1
 
 
 MainScreen()
-
 gui.mainloop()
