@@ -26,7 +26,7 @@ class LabelWidget:
         return var
 
 
-class Input():
+class Input:
     recipeNames = []
     ingredients = {}
     fullRecipe = {'ingredients': "", 'procedure': ""}
@@ -212,22 +212,34 @@ class Search:
             widget.destroy()
 
     def search_menu(self):
+        classinput = Input(gui)
+
         browse_all_files_button = Button(gui, text="Choose File", padx="50", pady="20", bg="lightgrey",
                                          command=partial(self.CheckPage, 2))
-        browse_all_files_button.place(x=300, y=300)
+        browse_all_files_button.place(x=270, y=300)
+
+        back_button = Button(gui, text="Back", padx="45", pady="15", bg="lightgrey",
+                             command=partial(classinput.CheckPage, 1))
+        back_button.place(x=20, y=600)
 
     def choose_file(self):
         self.Clear()
+        classinput = Input(gui)
 
         folder = os.getcwd()
+        
         filelist = [fname for fname in os.listdir(folder) if fname.endswith('.pickle')]
-
+        
         optionsmenu = ttk.Combobox(gui, values=filelist, state='readonly')
         optionsmenu.place(x=300, y=300)
 
         display_button = Button(gui, text="Show Recipe", padx="50", pady="20", bg="lightgrey",
                                 command=partial(self.CheckPage, 3, optionsmenu))
         display_button.place(x=300, y=500)
+
+        back_button = Button(gui, text="Back", padx="45", pady="15", bg="lightgrey",
+                             command=partial(classinput.CheckPage, 1))
+        back_button.place(x=20, y=600)
 
     def display(self, optionsmenu):
         root = Tk()
