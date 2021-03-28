@@ -11,6 +11,18 @@ import sqlite3
 HEIGHT = 700
 WIDTH = 900
 
+if os.name == "nt":
+    path = os.getenv("LOCALAPPDATA")
+    directory = "RecipeManager"
+    pathWithDir = os.path.join(path, directory)
+    try:
+        os.mkdir(pathWithDir)
+    except OSError as e:
+        # Expected Error:
+        # [WinError 183] Cannot create a file when that file already exists:
+        # 'C:\\Users\\username\\AppData\\Local\\RecipeManager'
+        pass
+
 conn = sqlite3.connect('recipes.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS recipes
