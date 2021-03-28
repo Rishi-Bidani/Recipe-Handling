@@ -1,15 +1,29 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import messagebox
 from tkinter import ttk
-import pickle
 import os
 from os import path
 from functools import partial
+import sqlite3
 
 # gui = Tk()
 HEIGHT = 700
 WIDTH = 900
 
+conn = sqlite3.connect('recipes.db')
+
+conn.execute('''CREATE TABLE IF NOT EXISTS recipes
+         (id INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+         title           TEXT    NOT NULL,
+         ingredients     TEXT     NOT NULL,
+         procedure        TEXT);''')
+
+# conn.execute('''CREATE TABLE IF NOT EXISTS tags
+#          (id INT PRIMARY  KEY     NOT NULL,
+#          tag              TEXT    NOT NULL,
+#          titles           TEXT);
+# ''')
 
 buttonFont = ("Arial", 10, "bold")
 headingFont = ("Arial", 24, "bold")
@@ -27,6 +41,9 @@ class Page(tk.Frame):
 class Page1(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+        self.titleEntry = Entry(self)
+        self.textIngredients = Text(self)
+        self.textProcedure = Text(self)
         self.displayPage()
 
     def displayPage(self):
@@ -38,56 +55,56 @@ class Page1(Page):
         recipeTitleLabel.place(x=20, rely=0.1)
         recipeTitleLabel.configure(font=titleFont)
 
-        titleEntry = Entry(self)
-        titleEntry.place(x=160, rely=0.1, relwidth=0.5, height=25)
+        self.titleEntry.place(x=160, rely=0.1, relwidth=0.5, height=25)
 
         IngredientsLabel = tk.Label(self, text="Ingredients")
         IngredientsLabel.place(x=20, rely=0.18)
         IngredientsLabel.configure(font=titleFont)
 
-        textIngredients = Text(self)
-        scroll = Scrollbar(self, command=textIngredients.yview)
+        scroll = Scrollbar(self, command=self.textIngredients.yview)
+        self.textIngredients.configure(yscrollcommand=scroll.set)
 
-        textIngredients.configure(yscrollcommand=scroll.set)
-
-        # text.tag_configure('bold_italics',
-        #                    font=('Verdana', 12, 'bold', 'italic'))
-        #
-        # text.tag_configure('big',
-        #                    font=('Verdana', 24, 'bold'))
-        # text.tag_configure('color',
-        #                    foreground='blue',
-        #                    font=('Tempus Sans ITC', 14))
-        #
-        # text.tag_configure('groove',
-        #                    relief=GROOVE,
-        #                    borderwidth=2)
-
-        # text.tag_bind('bite',
-        #               '<1>',
-        #               lambda e, t=text: t.insert(END, "Text"))
-        textIngredients.place(x=20, rely=0.23, relwidth=0.5, relheight=0.25)
+        self.textIngredients.place(x=20, rely=0.23, relwidth=0.5, relheight=0.25)
 
         procedureLabel = tk.Label(self, text="Procedure: ")
         procedureLabel.place(x=20, rely=0.5)
         procedureLabel.configure(font=titleFont)
 
-        textProcedure = Text(self)
-        scroll = Scrollbar(self, command=textProcedure.yview)
+        scroll = Scrollbar(self, command=self.textProcedure.yview)
 
-        textProcedure.configure(yscrollcommand=scroll.set)
-        textProcedure.place(x=20, rely=0.55, relwidth=0.9, relheight=0.4)
+        self.textProcedure.configure(yscrollcommand=scroll.set)
+        self.textProcedure.place(x=20, rely=0.55, relwidth=0.9, relheight=0.4)
 
-        saveCommand = partial(self.getTextInfo, titleEntry, textIngredients, textProcedure)
+        saveCommand = partial(self.getTextInfo, self.titleEntry, self.textIngredients, self.textProcedure)
         saveButton = Button(self, text="Save", command=saveCommand)
         saveButton.configure(font=buttonFont)
-        saveButton.place(relx=0.85, rely=0.01, relwidth=0.1, relheight=0.05)
+        saveButton.place(relx=0.87, rely=0.01, relwidth=0.1, relheight=0.05)
 
     def getTextInfo(self, title, ingredients, procedure):
         title = title.get()
-        ingredients = ingredients.get("1.0",'end-1c')
-        procedure = procedure.get("1.0",'end-1c')
+        ingredients = ingredients.get("1.0", 'end-1c')
+        procedure = procedure.get("1.0", 'end-1c')
         print(title, ingredients, procedure)
+        if len(title) > 5 and (len(ingredients) - (ingredients.count(' ') + ingredients.count('\n')) > 10):
+            self.clearInputBoxes()
+            self.insertIntoTable(title, ingredients, procedure)
+        else:
+            messagebox.showwarning("Empty Insert",
+                                   "Title should be longer than 5 characters \n "
+                                   "Ingredients should have more than 10 characters")
+
+
+    def insertIntoTable(self, title, ingredients, procedure):
+        cur = conn.cursor()
+        cur.execute('INSERT INTO "recipes" ("title", "ingredients", "procedure") VALUES(?,?,?);',
+                    (title, ingredients, procedure))
+        conn.commit()
+        cur.close()
+
+    def clearInputBoxes(self):
+        self.titleEntry.delete(0, 'end')
+        self.textIngredients.delete("1.0","end")
+        self.textProcedure.delete("1.0","end")
 
 
 class Page2(Page):
