@@ -85,14 +85,14 @@ class Page1(Page):
         ingredients = ingredients.get("1.0", 'end-1c')
         procedure = procedure.get("1.0", 'end-1c')
         print(title, ingredients, procedure)
-        if len(title) > 5 and (len(ingredients) - (ingredients.count(' ') + ingredients.count('\n')) > 10):
+        if len(title) > 5 and \
+                (len(ingredients) - (ingredients.count(' ') + ingredients.count('\n')) > 10):
             self.clearInputBoxes()
             self.insertIntoTable(title, ingredients, procedure)
         else:
             messagebox.showwarning("Empty Insert",
                                    "Title should be longer than 5 characters \n "
                                    "Ingredients should have more than 10 characters")
-
 
     def insertIntoTable(self, title, ingredients, procedure):
         cur = conn.cursor()
