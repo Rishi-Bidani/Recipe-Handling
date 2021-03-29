@@ -30,6 +30,11 @@ conn.execute('''CREATE TABLE IF NOT EXISTS recipes
          ingredients     TEXT     NOT NULL,
          procedure        TEXT);''')
 
+# conn.execute('''CREATE TABLE IF NOT EXISTS tags
+#          (id INT PRIMARY  KEY     NOT NULL,
+#          tag              TEXT    NOT NULL,
+#          titles           TEXT);
+# ''')
 
 class SQLQueries:
     def __init__(self, query):

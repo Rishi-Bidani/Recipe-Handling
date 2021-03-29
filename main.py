@@ -2,18 +2,11 @@ from tkinter import *
 from tkinter import messagebox
 import os
 from functools import partial
-import sqlite3
 import handleSQL
 from handleSQL import SQLQueries
 
 HEIGHT = 700
 WIDTH = 900
-
-# conn.execute('''CREATE TABLE IF NOT EXISTS tags
-#          (id INT PRIMARY  KEY     NOT NULL,
-#          tag              TEXT    NOT NULL,
-#          titles           TEXT);
-# ''')
 
 buttonFont = ("Arial", 10, "bold")
 headingFont = ("Arial", 24, "bold")
@@ -110,7 +103,6 @@ class Page1(Page):
             self.clearInputBoxes()
         except sqlite3.IntegrityError:
             messagebox.showerror("Duplicate", "Please Insert A unique Recipe Title")
-
 
     def clearInputBoxes(self):
         self.titleEntry.delete(0, 'end')
