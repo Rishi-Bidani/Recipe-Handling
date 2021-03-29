@@ -31,4 +31,4 @@ Please wait for the newer version
 Don't use this because
   - it stores the data as binary files
   - It stores it under folders in the root directory
-  - 
+  - Complicated navigation
