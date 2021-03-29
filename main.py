@@ -3,32 +3,11 @@ from tkinter import messagebox
 import os
 from functools import partial
 import sqlite3
+import handleSQL
+from handleSQL import SQLQueries
 
 HEIGHT = 700
 WIDTH = 900
-
-if os.name == "nt":
-    path = os.getenv("LOCALAPPDATA")
-    directory = "RecipeManager"
-    pathWithDir = os.path.join(path, directory)
-    try:
-        os.mkdir(pathWithDir)
-    except OSError as e:
-        # Expected Error:
-        # [WinError 183] Cannot create a file when that file already exists:
-        # 'C:\\Users\\username\\AppData\\Local\\RecipeManager'
-        pass
-
-    conn = sqlite3.connect(os.path.join(pathWithDir,'recipes.db'))
-
-else:
-    conn = sqlite3.connect('recipes.db')
-
-conn.execute('''CREATE TABLE IF NOT EXISTS recipes
-         (id INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-         title           TEXT    NOT NULL,
-         ingredients     TEXT     NOT NULL,
-         procedure        TEXT);''')
 
 # conn.execute('''CREATE TABLE IF NOT EXISTS tags
 #          (id INT PRIMARY  KEY     NOT NULL,
@@ -117,7 +96,6 @@ class Page1(Page):
         # print(title, ingredients, procedure)
         if len(title) > 5 and \
                 (len(ingredients) - (ingredients.count(' ') + ingredients.count('\n')) > 10):
-            self.clearInputBoxes()
             self.insertIntoTable(title, ingredients, procedure)
         else:
             messagebox.showwarning("Empty Insert",
@@ -125,16 +103,19 @@ class Page1(Page):
                                    "Ingredients should have more than 10 characters")
 
     def insertIntoTable(self, title, ingredients, procedure):
-        cur = conn.cursor()
-        cur.execute('INSERT INTO "recipes" ("title", "ingredients", "procedure") VALUES(?,?,?);',
-                    (title, ingredients, procedure))
-        conn.commit()
-        cur.close()
+        insertQuery = SQLQueries("INSERT INTO '{0}' ('title', 'ingredients', 'procedure') VALUES('{1}','{2}','{3}')". \
+                                 format("recipes", title, ingredients, procedure))
+        try:
+            insertQuery.insertIntoTable()
+            self.clearInputBoxes()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Duplicate", "Please Insert A unique Recipe Title")
+
 
     def clearInputBoxes(self):
         self.titleEntry.delete(0, 'end')
-        self.textIngredients.delete("1.0","end")
-        self.textProcedure.delete("1.0","end")
+        self.textIngredients.delete("1.0", "end")
+        self.textProcedure.delete("1.0", "end")
 
 
 class Page2(Page):
@@ -144,21 +125,26 @@ class Page2(Page):
         label.place(relwidth=1, anchor=NW)
         label.configure(font=headingFont)
         self.titles = []
+        self.listbox = Listbox(self, bg="white", fg="green",
+                               font="Helvetica", highlightcolor="green")
         self.displayPage()
 
     def displayPage(self):
         self.queryRecipeTitles()
-        listbox = Listbox(self, bg="white", fg="green",
-                          font="Helvetica", highlightcolor="green")
+        self.listbox.delete(0, 'end')
         for i in range(len(self.titles)):
-            listbox.insert(i+1, self.titles[i][0])
-        listbox.yview()
-        listbox.place(x=20, rely=0.1, relheight=0.8, relwidth=0.5)
+            self.listbox.insert(i + 1, self.titles[i][0])
+        self.listbox.bind('<Double-1>', lambda x: self.listBoxSearch())
+        self.listbox.yview()
+        self.listbox.place(x=20, rely=0.1, relheight=0.8, relwidth=0.5)
+
+    def listBoxSearch(self):
+        cs = self.listbox.curselection()[0]
+        print(self.listbox.get(cs))
 
     def queryRecipeTitles(self):
-        cur = conn.cursor()
-        cur.execute("SELECT title FROM recipes ORDER BY title ASC")
-        rows = cur.fetchall()
+        selectQuery = SQLQueries("SELECT title FROM recipes ORDER BY title ASC")
+        rows = selectQuery.selectFromTable()
         # for i in rows:
         #     if i not in self.titles:
         #         self.titles.append(i)
@@ -202,15 +188,15 @@ class MainView(Frame):
         self.sideNavButtons()
 
     def sideNavButtons(self):
-        page1Lift = partial(self.liftWhichPage, 1)
-        page2Lift = partial(self.liftWhichPage, 2)
-        page3Lift = partial(self.liftWhichPage, 3)
-        page4Lift = partial(self.liftWhichPage, 4)
+        page1lift = partial(self.liftWhichPage, 1)
+        page2lift = partial(self.liftWhichPage, 2)
+        page3lift = partial(self.liftWhichPage, 3)
+        page4lift = partial(self.liftWhichPage, 4)
 
-        b1 = Button(text="Add Recipe", width=20, height=5, command=page1Lift)
-        b2 = Button(text="Search Recipe", width=20, height=5, command=page2Lift)
-        b3 = Button(text="Favourites", width=20, height=5, command=page3Lift)
-        b4 = Button(text="Recents", width=20, height=5, command=page4Lift)
+        b1 = Button(text="Add Recipe", width=20, height=5, command=page1lift)
+        b2 = Button(text="Search Recipe", width=20, height=5, command=page2lift)
+        b3 = Button(text="Favourites", width=20, height=5, command=page3lift)
+        b4 = Button(text="Recents", width=20, height=5, command=page4lift)
 
         b1.place(in_=self.sidebar, anchor="c", relx=0.5, rely=0.15)
         b2.place(in_=self.sidebar, anchor="c", relx=0.5, rely=0.225)
