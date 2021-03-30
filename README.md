@@ -4,7 +4,8 @@ This program will allow you to organise your recipes locally on your system
 Currently, all releases are of my old version, once development of my new version is functional enough for production it will also be added to me releases
 
 <br />
-## Planned Features
+
+### Planned Features
   - Nicer layout and easier navigation
   - Data stored in a sqlite db
   - Search for recipes using custom tags(you can asssign the same tag to different recipes)
