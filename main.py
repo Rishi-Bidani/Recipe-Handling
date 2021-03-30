@@ -1,11 +1,10 @@
 import sqlite3
-from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
 import os
 from functools import partial
 import handleSQL
 from handleSQL import SQLQueries
-import displayRecipe
 from displayRecipe import DisplayRecipe
 
 HEIGHT = 700
@@ -27,14 +26,14 @@ class LabelWidget:
         self.rely = rely
 
     def placeLabel(self):
-        thisLabel = Label(self.screen, text=self.text)
+        thisLabel = tk.Label(self.screen, text=self.text)
         thisLabel.place(x=self.x, y=self.y, relx=self.relx, rely=self.rely)
         thisLabel.configure(font=self.font)
 
 
-class Page(Frame):
+class Page(tk.Frame):
     def __init__(self, *args, **kwargs):
-        Frame.__init__(self, *args, **kwargs)
+        tk.Frame.__init__(self, *args, **kwargs)
 
     def show(self):
         self.lift()
@@ -43,15 +42,15 @@ class Page(Frame):
 class Page1(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        self.titleEntry = Entry(self)
-        self.textIngredients = Text(self)
-        self.textProcedure = Text(self)
+        self.titleEntry = tk.Entry(self)
+        self.textIngredients = tk.Text(self)
+        self.textProcedure = tk.Text(self)
         self.displayLabels()
         self.displayPage()
 
     def displayLabels(self):
-        label = Label(self, text="Enter Recipe")
-        label.place(relwidth=1, anchor=NW)
+        label = tk.Label(self, text="Enter Recipe")
+        label.place(relwidth=1, anchor=tk.NW)
         label.configure(font=headingFont)
 
         # Label for Recipe Title
@@ -70,20 +69,29 @@ class Page1(Page):
 
         self.titleEntry.place(x=160, rely=0.1, relwidth=0.5, height=25)
 
-        scroll = Scrollbar(self, command=self.textIngredients.yview)
+        scroll = tk.Scrollbar(self, command=self.textIngredients.yview)
         self.textIngredients.configure(yscrollcommand=scroll.set)
 
         self.textIngredients.place(x=20, rely=0.23, relwidth=0.5, relheight=0.25)
+        self.TextDefault(self.textIngredients, "Ingredientd1 [qty 1], \n"
+                                               "Ingredient2 [qty2]")
 
-        scroll = Scrollbar(self, command=self.textProcedure.yview)
+        scroll = tk.Scrollbar(self, command=self.textProcedure.yview)
 
         self.textProcedure.configure(yscrollcommand=scroll.set)
         self.textProcedure.place(x=20, rely=0.55, relwidth=0.9, relheight=0.4)
+        self.TextDefault(self.textProcedure, "1. Procedure Step 1 \n"
+                                             "2. Procedure Step 2")
 
         saveCommand = partial(self.getTextInfo, self.titleEntry, self.textIngredients, self.textProcedure)
-        saveButton = Button(self, text="Save", command=saveCommand)
+        saveButton = tk.Button(self, text="Save", command=saveCommand)
         saveButton.configure(font=buttonFont)
         saveButton.place(relx=0.87, rely=0.01, relwidth=0.1, relheight=0.05)
+
+    def TextDefault(self, elem, text):
+        elem.insert(tk.END, f"{text}")
+        elem.bind("<FocusOut>", lambda args: elem.insert(tk.END, f"{text}"))
+        elem.bind("<FocusIn>", lambda args: elem.delete("1.0", tk.END))
 
     def getTextInfo(self, title, ingredients, procedure):
         title = title.get()
@@ -99,7 +107,7 @@ class Page1(Page):
                                    "Ingredients should have more than 10 characters")
 
     def insertIntoTable(self, title, ingredients, procedure):
-        insertQuery = SQLQueries("INSERT INTO '{0}' ('title', 'ingredients', 'procedure') VALUES('{1}','{2}','{3}')". \
+        insertQuery = SQLQueries("INSERT INTO '{0}' ('title', 'ingredients', 'procedure') VALUES('{1}','{2}','{3}')".
                                  format("recipes", title, ingredients, procedure))
         try:
             insertQuery.insertIntoTable()
@@ -116,11 +124,11 @@ class Page1(Page):
 class Page2(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        label = Label(self, text="Search Recipes")
-        label.place(relwidth=1, anchor=NW)
+        label = tk.Label(self, text="Search Recipes")
+        label.place(relwidth=1, anchor=tk.NW)
         label.configure(font=headingFont)
         self.titles = []
-        self.listbox = Listbox(self, bg="white", fg="green",
+        self.listbox = tk.Listbox(self, bg="white", fg="green",
                                font="Helvetica", highlightcolor="green")
         self.displayPage()
 
@@ -136,7 +144,10 @@ class Page2(Page):
     def listBoxSearch(self):
         cs = self.listbox.curselection()[0]
         # print(self.listbox.get(cs))
-        disp = DisplayRecipe(self.listbox.get(cs), "Ing", "Procedure")
+        title = self.listbox.get(cs)
+        selectIng = SQLQueries(f"SELECT ingredients FROM recipes WHERE title = '{title}';")
+        selectedIng = selectIng.selectFromTable()
+        disp = DisplayRecipe(title, selectedIng, "Procedure")
         disp.ready()
 
     def queryRecipeTitles(self):
@@ -153,24 +164,24 @@ class Page2(Page):
 class Page3(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        label = Label(self, text="Favourites")
-        label.place(relwidth=1, anchor=NW)
+        label = tk.Label(self, text="Favourites")
+        label.place(relwidth=1, anchor=tk.NW)
         label.configure(font=headingFont)
 
 
 class Page4(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        label = Label(self, text="Recents")
-        label.place(relwidth=1, anchor=NW)
+        label = tk.Label(self, text="Recents")
+        label.place(relwidth=1, anchor=tk.NW)
         label.configure(font=headingFont)
 
 
-class MainView(Frame):
+class MainView(tk.Frame):
     def __init__(self, *args, **kwargs):
-        Frame.__init__(self, *args, **kwargs)
+        tk.Frame.__init__(self, *args, **kwargs)
 
-        self.sidebar = Frame(gui, width=WIDTH / 5, bg='#9ddfd3', height=2 * HEIGHT, borderwidth=2)
+        self.sidebar = tk.Frame(gui, width=WIDTH / 5, bg='#9ddfd3', height=2 * HEIGHT, borderwidth=2)
         self.sidebar.place(x=0, y=0)
         self.p1 = Page1(self)
         self.p2 = Page2(self)
@@ -190,10 +201,10 @@ class MainView(Frame):
         page3lift = partial(self.liftWhichPage, 3)
         page4lift = partial(self.liftWhichPage, 4)
 
-        b1 = Button(text="Add Recipe", width=20, height=5, command=page1lift)
-        b2 = Button(text="Search Recipe", width=20, height=5, command=page2lift)
-        b3 = Button(text="Favourites", width=20, height=5, command=page3lift)
-        b4 = Button(text="Recents", width=20, height=5, command=page4lift)
+        b1 = tk.Button(text="Add Recipe", width=20, height=5, command=page1lift)
+        b2 = tk.Button(text="Search Recipe", width=20, height=5, command=page2lift)
+        b3 = tk.Button(text="Favourites", width=20, height=5, command=page3lift)
+        b4 = tk.Button(text="Recents", width=20, height=5, command=page4lift)
 
         b1.place(in_=self.sidebar, anchor="c", relx=0.5, rely=0.15)
         b2.place(in_=self.sidebar, anchor="c", relx=0.5, rely=0.225)
@@ -219,7 +230,7 @@ class MainView(Frame):
 
 
 if __name__ == "__main__":
-    gui = Tk()
+    gui = tk.Tk()
     gui.geometry(f"{WIDTH}x{HEIGHT}")
     gui.title("Recipe Manger")
     main = MainView(gui)
