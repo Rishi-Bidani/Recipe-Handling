@@ -36,6 +36,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS recipes
 #          titles           TEXT);
 # ''')
 
+
 class SQLQueries:
     def __init__(self, query):
         self.query = query

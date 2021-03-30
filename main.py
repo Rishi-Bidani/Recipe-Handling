@@ -1,9 +1,12 @@
+import sqlite3
 from tkinter import *
 from tkinter import messagebox
 import os
 from functools import partial
 import handleSQL
 from handleSQL import SQLQueries
+import displayRecipe
+from displayRecipe import DisplayRecipe
 
 HEIGHT = 700
 WIDTH = 900
@@ -132,7 +135,9 @@ class Page2(Page):
 
     def listBoxSearch(self):
         cs = self.listbox.curselection()[0]
-        print(self.listbox.get(cs))
+        # print(self.listbox.get(cs))
+        disp = DisplayRecipe(self.listbox.get(cs), "Ing", "Procedure")
+        disp.ready()
 
     def queryRecipeTitles(self):
         selectQuery = SQLQueries("SELECT title FROM recipes ORDER BY title ASC")
