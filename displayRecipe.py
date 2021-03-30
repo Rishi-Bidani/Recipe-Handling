@@ -19,7 +19,6 @@ class ListCheck:
 
         self.canvas = tk.Canvas(self.listcheck_frame)
         self.yscroll = ttk.Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
-
         self.mainFrame = tk.Frame(self.canvas)
         self.relX = relX
         self.relY = relY
@@ -28,9 +27,10 @@ class ListCheck:
 
     def createWin(self, items):
         self.yscroll.pack(side=tk.RIGHT, fill="y")
-        self.canvas.pack(side=tk.LEFT, fill="y")
+        self.canvas.pack(side=tk.LEFT, fill="both", expand="yes")
         self.canvas.config(bg="white")
         self.canvas.configure(yscrollcommand=self.yscroll.set)
+        self.mainFrame.config(bg="white")
         if items <= 10:
             pass
         else:
@@ -41,9 +41,10 @@ class ListCheck:
 
     def insertRow(self, text):
         c1 = tk.Checkbutton(self.mainFrame, text=text, onvalue=1, offvalue=0)
-        c1.pack(anchor="w", fill="x")
-        print(self.mainFrame.winfo_width())
-        c1.configure(font=("Arial", 16), bg="white", wraplength=250)
+        c1.pack(side=tk.TOP, anchor="w", expand="yes")
+        # canvasWidth = (self.relW*(self.canvas.winfo_screenwidth()/4))
+        canvasWidth = 500
+        c1.configure(font=("Arial", 16), bg="white", wraplength=canvasWidth, justify="left", pady=10)
 
 
 class DisplayRecipe:
@@ -87,9 +88,13 @@ class DisplayRecipe:
 
     def ingred_win(self):
         lc = ListCheck(self.leftframe, relX=0.05, relW=0.8, relH=0.9)
-        lc.createWin(30)
-        for i in range(30):
-            lc.insertRow(f"testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt{i}")
+        # ing_list = self.ingredients[0][0].split("\n")
+        ing_list = [i.strip() for i in self.ingredients[0][0].split("\n") if len(i)>1]
+        # print(ing_list)
+        lc.createWin(len(ing_list))
+        for i in range(len(ing_list)):
+            # lc.insertRow(f"testt ttttt tttttt tttttttt tttttt ttttttttttttttttttttttttt{i}")
+            lc.insertRow(f"{ing_list[i]}")
 
     def new_window(self):
         self.gui.geometry(f"{WIDTH}x{HEIGHT}")
@@ -97,5 +102,5 @@ class DisplayRecipe:
         self.gui.mainloop()
 
 
-a = DisplayRecipe("Soup", "b", "c")
-a.ready()
+# a = DisplayRecipe("Soup", "b", "c")
+# a.ready()

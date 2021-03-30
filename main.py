@@ -73,15 +73,13 @@ class Page1(Page):
         self.textIngredients.configure(yscrollcommand=scroll.set)
 
         self.textIngredients.place(x=20, rely=0.23, relwidth=0.5, relheight=0.25)
-        self.TextDefault(self.textIngredients, "Ingredientd1 [qty 1], \n"
-                                               "Ingredient2 [qty2]")
+        self.TextDefault(self.textIngredients, "Ingredientd1 [qty 1], \nIngredient2 [qty2]")
 
         scroll = tk.Scrollbar(self, command=self.textProcedure.yview)
 
         self.textProcedure.configure(yscrollcommand=scroll.set)
         self.textProcedure.place(x=20, rely=0.55, relwidth=0.9, relheight=0.4)
-        self.TextDefault(self.textProcedure, "1. Procedure Step 1 \n"
-                                             "2. Procedure Step 2")
+        self.TextDefault(self.textProcedure, "1. Procedure Step 1 \n2. Procedure Step 2")
 
         saveCommand = partial(self.getTextInfo, self.titleEntry, self.textIngredients, self.textProcedure)
         saveButton = tk.Button(self, text="Save", command=saveCommand)
@@ -90,14 +88,13 @@ class Page1(Page):
 
     def TextDefault(self, elem, text):
         elem.insert(tk.END, f"{text}")
-        elem.bind("<FocusOut>", lambda args: elem.insert(tk.END, f"{text}"))
+        # elem.bind("<FocusOut>", lambda args: elem.insert(tk.END, f"{text}"))
         elem.bind("<FocusIn>", lambda args: elem.delete("1.0", tk.END))
 
     def getTextInfo(self, title, ingredients, procedure):
         title = title.get()
         ingredients = ingredients.get("1.0", 'end-1c')
         procedure = procedure.get("1.0", 'end-1c')
-        # print(title, ingredients, procedure)
         if len(title) > 5 and \
                 (len(ingredients) - (ingredients.count(' ') + ingredients.count('\n')) > 10):
             self.insertIntoTable(title, ingredients, procedure)
