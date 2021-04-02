@@ -47,9 +47,6 @@ class ListCheck:
         self.scrollReg = CreateVerticalScrollRegion(self.listcheck_frame, "white", tk.LEFT)
         self.mainFrame = self.scrollReg.returnFrame()
 
-        # self.canvas = tk.Canvas(self.listcheck_frame)
-        # self.yscroll = ttk.Scrollbar(self.listcheck_frame, orient="vertical", command=self.canvas.yview)
-        # self.mainFrame = tk.Frame(self.canvas)
         self.relX = relX
         self.relY = relY
         self.relW = relW
@@ -62,24 +59,9 @@ class ListCheck:
         else:
             self.scrollReg.bindScrollAction()
 
-    # def createWin(self, items):
-    #     self.yscroll.pack(side=tk.RIGHT, fill="y")
-    #     self.canvas.pack(side=tk.LEFT, fill="both", expand="yes")
-    #     self.canvas.config(bg="white")
-    #     self.canvas.configure(yscrollcommand=self.yscroll.set)
-    #     self.mainFrame.config(bg="white")
-    #     if items <= 10:
-    #         # self.canvas.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-    #         pass
-    #     else:
-    #         self.canvas.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-    #     self.canvas.create_window((0, 0), window=self.mainFrame, anchor="nw")
-    #
-    #     self.listcheck_frame.place(relx=self.relX, rely=self.relY, relwidth=self.relW, relheight=self.relH)
-
-    def insertRow(self, text):
-        c1 = tk.Checkbutton(self.mainFrame, text=text, onvalue=1, offvalue=0)
-        c1.pack(side=tk.TOP, anchor="w", expand="yes")
+    def insertRow(self, text, var):
+        c1 = tk.Checkbutton(self.mainFrame, text=text, variable=f"{text[:5]+var}",onvalue=1, offvalue=0)
+        c1.pack(anchor="w", expand="yes", side=tk.TOP)
         # canvasWidth = (self.relW*(self.canvas.winfo_screenwidth()/4))
         canvasWidth = 500
         c1.configure(font=("Arial", 16), bg="white", wraplength=canvasWidth, justify="left", pady=10)
@@ -108,7 +90,7 @@ class DisplayRecipe:
         self.leftframe.place(x=0, rely=0.05, relheight=(1 - 0.05), relwidth=0.4)
         # self.leftframe.config(bg="red")
 
-        self.rightframe.place(relx=0.4, rely=0.05, relwidth=0.6, relheight=(1 - 0.05))
+        self.rightframe.place(relx=0.37, rely=0.05, relwidth=0.6, relheight=(1 - 0.05))
 
     def titleLabels(self):
         recipeTitleLabel = tk.Label(self.topframe, text=self.title)
@@ -125,14 +107,24 @@ class DisplayRecipe:
         procTitleLabel.config(font=titleFont)
 
     def ingred_win(self):
-        lc = ListCheck(self.leftframe, relX=0.05, relW=0.8, relH=0.9)
-        # ing_list = self.ingredients[0][0].split("\n")
+        ingred = ListCheck(self.leftframe, relX=0.05, relW=0.9, relH=0.9)
         ing_list = [i.strip() for i in self.ingredients[0][0].split("\n") if len(i) > 1]
-        # print(ing_list)
-        lc.createWin(len(ing_list))
+        ingred.createWin(len(ing_list))
+        
+        proc = ListCheck(self.rightframe, relX=0.05, relW=0.95, relH=0.9)
+        # proc.createWin(20)
+
+        proc_list = [i.strip() for i in self.procedure[0][0].split("\n") if len(i) > 1]
+        print(proc_list)
+        proc.createWin(len(proc_list))
+        
+        
+        # lc.createWin(30)
 
         for i in range(len(ing_list)):
-            lc.insertRow(f"{ing_list[i]}")
+            ingred.insertRow(f"{ing_list[i]}", f"{i}")
+        for j in range(len(proc_list)):
+            proc.insertRow(f"{proc_list[j]}", f"{j}")
         # for i in range(30):
         #     lc.insertRow(f"testt ttttt tttttt tttttttt tttttt ttttttttttttttttttttttttt{i}")
 

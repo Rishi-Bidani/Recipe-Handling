@@ -88,8 +88,8 @@ class Page1(Page):
 
     def TextDefault(self, elem, text):
         elem.insert(tk.END, f"{text}")
-        # elem.bind("<FocusOut>", lambda args: elem.insert(tk.END, f"{text}"))
-        elem.bind("<FocusIn>", lambda args: elem.delete("1.0", tk.END))
+        # # elem.bind("<FocusOut>", lambda args: elem.insert(tk.END, f"{text}"))
+        # elem.bind("<FocusIn>", lambda args: elem.delete("1.0", tk.END))
 
     def getTextInfo(self, title, ingredients, procedure):
         title = title.get()
@@ -143,8 +143,10 @@ class Page2(Page):
         # print(self.listbox.get(cs))
         title = self.listbox.get(cs)
         selectIng = SQLQueries(f"SELECT ingredients FROM recipes WHERE title = '{title}';")
+        selectProc = SQLQueries(f"SELECT procedure FROM recipes WHERE title = '{title}';")
         selectedIng = selectIng.selectFromTable()
-        disp = DisplayRecipe(title, selectedIng, "Procedure")
+        selectedProc = selectProc.selectFromTable()
+        disp = DisplayRecipe(title, selectedIng, selectedProc)
         disp.ready()
 
     def queryRecipeTitles(self):

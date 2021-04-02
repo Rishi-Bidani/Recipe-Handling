@@ -2,4 +2,5 @@
 recipes.db
 LATEST/
 __pycache__/
-
+unused_old/
+recipes/
